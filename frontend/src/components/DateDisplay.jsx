@@ -1,9 +1,17 @@
 function DateDisplay({ dataISO }) {
-    const date = new Date(dataISO).toLocaleDateString("pt-BR");
+    if (!dataISO) return <span>Data inválida</span>;
 
-   return (
-    <span>{date}</span>
-   ); 
+    const date = new Date(dataISO);
+    
+    if (isNaN(date.getTime())) {
+        return <span>Data inválida</span>;
+    }
+
+    const formattedDate = date.toLocaleDateString("pt-BR", {
+        timeZone: "UTC",
+    });
+
+    return <span>{formattedDate}</span>;
 }
 
 export default DateDisplay;

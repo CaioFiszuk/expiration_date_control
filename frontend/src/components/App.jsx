@@ -9,6 +9,10 @@ function App() {
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
 
+  const sortProducts = (products) => {
+    return products.sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
+  };
+
   const openMainModal = () => {
     setOpenModal(true);
   };
@@ -19,11 +23,13 @@ function App() {
 
   const handleCreateProduct = async (data) => {
     try {
+
       await api.createProduct(data.title, data.quantity, data.expirationDate);
-      setProducts(prevProducts => [
+      setProducts(prevProducts => sortProducts([
         ...prevProducts,
         { title: data.title, quantity: data.quantity, expirationDate: data.expirationDate }
-      ]);
+      ]));
+
     } catch (error) {
       console.error(error);
     }
@@ -44,13 +50,7 @@ function App() {
   useEffect(() => {
     api.getProducts()
       .then((data) => {
-        const sortedProducts = data.data.sort((a,b)=>{
-          const dateA = new Date(a.expirationDate);
-          const dateB = new Date(b.expirationDate);
-          return dateA - dateB;
-        });
-
-        setProducts(sortedProducts);
+        setProducts(sortProducts(data.data));
       })
       .catch((error) => console.error("Erro ao buscar produtos:", error));
   }, []);
