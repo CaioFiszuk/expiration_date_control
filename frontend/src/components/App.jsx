@@ -2,6 +2,7 @@ import { api } from '../utils/api';
 import { useEffect, useState } from 'react';
 import { FaTrashCan, FaPen } from "react-icons/fa6";
 import DateDisplay from './DateDisplay';
+import { calculateDays } from '../utils/calculate';
 import Popup from './Popup';
 
 function App() {
@@ -14,7 +15,7 @@ function App() {
 
   const closeMainModal = () => {
     setOpenModal(false);
-  }
+  };
 
   const handleCreateProduct = async (data) => {
     try {
@@ -26,7 +27,7 @@ function App() {
     } catch (error) {
       console.error(error);
     }
-  };  
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -39,12 +40,10 @@ function App() {
     await handleCreateProduct(productData);
     closeMainModal();
   };
-  
 
   useEffect(() => {
     api.getProducts()
       .then((data) => {
-        //console.log("Produtos recebidos:", data);
         setProducts(data.data);
       })
       .catch((error) => console.error("Erro ao buscar produtos:", error));
@@ -52,7 +51,6 @@ function App() {
 
   return (
     <div className='page'>
-
       <button 
         type='button' 
         className='create-button'
@@ -73,21 +71,32 @@ function App() {
           </tr>
         </thead>
         <tbody>
-        {products.length > 0 ? (
-
-          products.map((product) => (
-            <tr key={product._id}>
-              <td className='table__cell'>{product.title}</td>
-              <td className='table__cell'>{product.quantity}</td>
-              <td className='table__cell'>{<DateDisplay dataISO={product.expirationDate}/>}</td>
-              <td className='table__cell'><FaPen /></td>
-              <td className='table__cell'><FaTrashCan /></td>
-            </tr>
-          ))
-
-        ) : (
-          <tr>Nada foi encontrado</tr>
-        )}
+          {products.length > 0 ? (
+            products.map((product) => {
+              const remainingDays = calculateDays(product.expirationDate);
+              let color = '';
+            
+              if (remainingDays <= 7) {
+                color = 'red-cell'; 
+              } else if (remainingDays <= 15) {
+                color = 'orange-cell'; 
+              }
+            
+              return (
+                <tr key={product._id}>
+                  <td className='table__cell'>{product.title}</td>
+                  <td className='table__cell'>{product.quantity}</td>
+                  <td className={`table__cell ${color}`}>
+                    <DateDisplay dataISO={product.expirationDate} />
+                  </td>
+                  <td className='table__cell'><FaPen /></td>
+                  <td className='table__cell'><FaTrashCan /></td>
+                </tr>
+              );
+            })
+          ) : (
+            <tr><td colSpan="5">Nada foi encontrado</td></tr>
+          )}
         </tbody>
       </table>
 
@@ -95,19 +104,19 @@ function App() {
         isOpen={openModal}
         onClose={closeMainModal}
       >
-         <form className='form' onSubmit={handleSubmit}>
+        <form className='form' onSubmit={handleSubmit}>
           <legend className='form__title'>Registrar Produto</legend>
           <input type="text" name="title" placeholder='Título' className='form__input'/>
           <input type="number" name="quantity" placeholder='Quantidade' className='form__input'/>
           <input type="date" name="expiration-date" className='form__input'/>
 
-           <button 
-             type='submit' 
-             className='form__button'
-            >
-              Registrar
-            </button>
-         </form>
+          <button 
+            type='submit' 
+            className='form__button'
+          >
+            Registrar
+          </button>
+        </form>
       </Popup>
     </div>
   );

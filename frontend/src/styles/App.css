@@ -34,3 +34,13 @@
     padding: 10px;
     text-align: left;
 }
+
+.red-cell {
+    background-color: red;
+    color: white;
+  }
+  
+.orange-cell {
+  background-color: orange;
+  color: white;
+}
