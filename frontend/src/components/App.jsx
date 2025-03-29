@@ -44,7 +44,13 @@ function App() {
   useEffect(() => {
     api.getProducts()
       .then((data) => {
-        setProducts(data.data);
+        const sortedProducts = data.data.sort((a,b)=>{
+          const dateA = new Date(a.expirationDate);
+          const dateB = new Date(b.expirationDate);
+          return dateA - dateB;
+        });
+
+        setProducts(sortedProducts);
       })
       .catch((error) => console.error("Erro ao buscar produtos:", error));
   }, []);
