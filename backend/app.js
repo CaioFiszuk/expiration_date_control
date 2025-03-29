@@ -1,8 +1,11 @@
 const express = require('express');
 const mongoose = require("mongoose");
+const cors = require("cors");
 const app = express();
 const productsRoutes = require('./routes/products');
 
+app.use(cors());
+app.options('*', cors());
 app.use(express.json());
 
 mongoose.connect("mongodb://localhost:27017/expControl")
