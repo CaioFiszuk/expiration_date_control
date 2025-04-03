@@ -6,9 +6,10 @@
 }
 
 .form__title {
+   font-family: Verdana, Geneva, Tahoma, sans-serif;
    font-size: 25px;
    line-height: 30px;
-   margin: 0;
+   margin: 20px 0;
    padding: 0;
    text-align: center;
 }
@@ -26,6 +27,11 @@
    border: none;
 }
 
+.form__button-box {
+    display: flex;
+    justify-content: space-evenly;
+}
+
 .form__button {
     background-color: slateblue;
     color: aliceblue;
@@ -41,3 +47,10 @@
     background-color: rgb(80, 68, 157);
 }
 
+.form__button-success{
+    background-color: green;
+}
+
+.form__button-danger{
+    background-color: red;
+}

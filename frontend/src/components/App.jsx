@@ -8,6 +8,8 @@ import Popup from './Popup';
 function App() {
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
+  const [deleteModal, setDeleteModal] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
   const sortProducts = (products) => {
     return products.sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
@@ -20,6 +22,16 @@ function App() {
   const closeMainModal = () => {
     setOpenModal(false);
   };
+
+  const openDeleteModal = (product) => {
+    setSelectedProduct(product);
+    setDeleteModal(true);
+  }
+
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+  }
+
 
   const handleCreateProduct = async (data) => {
     try {
@@ -34,6 +46,19 @@ function App() {
       console.error(error);
     }
   };
+
+  const handleDeleteProduct = async () => {
+    if (!selectedProduct) return;
+
+     try{
+        await api.deleteProduct(selectedProduct._id);
+        setProducts(products.filter((v) => v._id !== selectedProduct._id));
+        closeDeleteModal();
+        setSelectedProduct(null);
+     }catch(error){
+      console.error(error);
+     }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -96,7 +121,7 @@ function App() {
                     <DateDisplay dataISO={product.expirationDate} />
                   </td>
                   <td className='table__cell'><FaPen /></td>
-                  <td className='table__cell'><FaTrashCan /></td>
+                  <td className='table__cell pointer'><FaTrashCan onClick={() => openDeleteModal(product)}/></td>
                 </tr>
               );
             })
@@ -123,6 +148,17 @@ function App() {
             Registrar
           </button>
         </form>
+      </Popup>
+
+      <Popup
+        isOpen={deleteModal}
+        onClose={closeDeleteModal}
+      >
+         <h3 className='form__title'>Tem certeza?</h3>
+         <div className='form__button-box'>
+           <button className='form__button form__button-success' onClick={handleDeleteProduct}>Sim</button>
+           <button className='form__button form__button-danger' onClick={closeDeleteModal}>Não</button>
+         </div>
       </Popup>
     </div>
   );
