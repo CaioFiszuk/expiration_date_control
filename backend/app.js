@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const app = express();
 const productsRoutes = require('./routes/products');
+const expiredProductsRoutes = require('./routes/expiredProducts');
 
 app.use(cors());
 app.options('*', cors());
@@ -14,6 +15,7 @@ mongoose.connect("mongodb://localhost:27017/expControl")
 });
 
 app.use('/products', productsRoutes);
+app.use('/expiredProducts', expiredProductsRoutes)
 
 app.use((err, req, res, next) => {
    console.log("err:" + err)
