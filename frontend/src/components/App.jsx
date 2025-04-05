@@ -4,6 +4,8 @@ import { FaTrashCan, FaPen } from "react-icons/fa6";
 import DateDisplay from './DateDisplay';
 import { calculateDays } from '../utils/calculate';
 import Popup from './Popup';
+import { PDFDownloadLink } from '@react-pdf/renderer';
+import ProductListPdf from './ProductListPdf';
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -102,7 +104,6 @@ function App() {
           )
         )
       );
-      console.log(updatedProduct)
       closeUpdateModal();
     } catch (error) {
       console.error("Erro ao atualizar produto:", error);
@@ -121,6 +122,7 @@ function App() {
     await handleCreateProduct(productData);
     closeMainModal();
   };
+  
 
   useEffect(() => {
     api.getProducts()
@@ -132,14 +134,16 @@ function App() {
 
   return (
     <div className='page'>
-      <button 
-        type='button' 
-        className='create-button'
-        onClick={openMainModal}
-      >
-        Registrar Novo
-      </button>
-      
+      <nav className='navigation'>
+        <button
+          type='button'
+          className='blue-button'
+          onClick={openMainModal}
+        >
+          Registrar Novo
+        </button>
+      </nav>
+
       <table className='table'>
         <caption className='table__caption'>Lista de produtos</caption>
         <thead>
@@ -179,6 +183,22 @@ function App() {
             <tr><td colSpan="5">Nada foi encontrado</td></tr>
           )}
         </tbody>
+        <PDFDownloadLink
+        document={<ProductListPdf products={products} />}
+        fileName="lista_de_produtos.pdf"
+        style={{
+          textDecoration: 'none',
+          padding: '10px',
+          color: '#fff',
+          backgroundColor: '#4a4a4a',
+          border: '1px solid #4a4a4a',
+          borderRadius: '4px',
+          display: 'inline-block',
+          marginTop: '20px',
+        }}
+      >
+        {({ loading }) => (loading ? 'Carregando documento...' : 'Baixar PDF')}
+      </PDFDownloadLink>
       </table>
 
       <Popup

@@ -4,7 +4,12 @@
     padding: 0;
 }
 
-.create-button {
+.navigation{
+    display: flex;
+    justify-content: space-between;
+}
+
+.blue-button {
     border: none;
     color: white;
     background-color: slateblue;
@@ -13,8 +18,21 @@
     cursor: pointer;
 }
 
-.create-button:hover {
+.blue-button:hover {
     background-color: rgb(80, 68, 157);
+}
+
+.pdf-button {
+    border: none;
+    color: white;
+    background-color:red;
+    padding: 10px;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.pdf-button:hover {
+    background-color:rgb(165, 1, 1);
 }
 
 .table {
