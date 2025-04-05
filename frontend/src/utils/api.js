@@ -42,6 +42,27 @@ class Api {
         throw new Error(`Error: ${error.response ? error.response.status : error.message}`);
       }
     }
+
+    updateProduct(id, { title, quantity, expirationDate }) {
+      if (!id) {
+        return Promise.reject("O ID é obrigatório.");
+      }
+
+      const updatedFields = {};
+
+       if (title !== undefined) updatedFields.title = title;
+       if (quantity !== undefined) updatedFields.quantity = quantity;
+       if (expirationDate !== undefined) updatedFields.expirationDate = expirationDate;
+    
+      return axios.patch(`${this._baseURL}/products/${id}`, updatedFields, { headers: this._headers })
+        .then((res) => res.data)
+        .catch((error) => {
+          const errorMessage = error.response 
+            ? `Error: ${error.response.status} - ${error.response.data.message || error.message}` 
+            : `Network error: ${error.message}`;
+          return Promise.reject(errorMessage);
+        });
+    }
 }
 
 const api = new Api({

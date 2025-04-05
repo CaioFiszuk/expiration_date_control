@@ -9,7 +9,13 @@ function App() {
   const [products, setProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
+  const [updateModal, setUpdateModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [updateFormData, setUpdateFormData] = useState({
+    title: '',
+    quantity: '',
+    expirationDate: ''
+  });
 
   const sortProducts = (products) => {
     return products.sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
@@ -30,6 +36,20 @@ function App() {
 
   const closeDeleteModal = () => {
     setDeleteModal(false);
+  }
+
+  const openUpdateModal = (product) => {
+     setSelectedProduct(product);
+     setUpdateFormData({
+      title: product.title,
+      quantity: product.quantity,
+      expirationDate: product.expirationDate
+    });
+     setUpdateModal(true);
+  }
+
+  const closeUpdateModal = () => {
+    setUpdateModal(false);
   }
 
 
@@ -59,6 +79,36 @@ function App() {
       console.error(error);
      }
   }
+
+  const handleUpdateFormChange = (e) => {
+    const { name, value } = e.target;
+    setUpdateFormData((prevData) => ({
+      ...prevData,
+      [name]: value
+    }));
+  };
+
+  const handleUpdateProduct = async (e) => {
+    e.preventDefault();
+    if (!selectedProduct) return;
+  
+    try {
+      const response = await api.updateProduct(selectedProduct._id, updateFormData);
+      const updatedProduct = response.data;
+      setProducts((prevProducts) =>
+        sortProducts(
+          prevProducts.map((product) =>
+            product._id === selectedProduct._id ? updatedProduct : product
+          )
+        )
+      );
+      console.log(updatedProduct)
+      closeUpdateModal();
+    } catch (error) {
+      console.error("Erro ao atualizar produto:", error);
+    }
+  };
+  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,7 +170,7 @@ function App() {
                   <td className={`table__cell ${color}`}>
                     <DateDisplay dataISO={product.expirationDate} />
                   </td>
-                  <td className='table__cell'><FaPen /></td>
+                  <td className='table__cell pointer'><FaPen onClick={() => openUpdateModal(product)}/></td>
                   <td className='table__cell pointer'><FaTrashCan onClick={() => openDeleteModal(product)}/></td>
                 </tr>
               );
@@ -159,6 +209,46 @@ function App() {
            <button className='form__button form__button-success' onClick={handleDeleteProduct}>Sim</button>
            <button className='form__button form__button-danger' onClick={closeDeleteModal}>Não</button>
          </div>
+      </Popup>
+
+      <Popup
+        isOpen={updateModal}
+        onClose={closeUpdateModal}
+      >
+        <form className='form' onSubmit={handleUpdateProduct}>
+          <legend className='form__title'>Atualizar Produto</legend>
+          <input 
+          
+            type="text" 
+            name="title" 
+            placeholder='Título' 
+            className='form__input'
+            value={updateFormData.title}
+            onChange={handleUpdateFormChange}
+          />
+          <input 
+            type="number" 
+            name="quantity" 
+            placeholder='Quantidade' 
+            className='form__input'
+            value={updateFormData.quantity}
+            onChange={handleUpdateFormChange}
+          />
+          <input 
+            type="date" 
+            name="expiration-date" 
+            className='form__input'
+            value={updateFormData.expirationDate}
+            onChange={handleUpdateFormChange}
+          />
+
+          <button 
+            type='submit' 
+            className='form__button'
+          >
+            Atualizar
+          </button>
+        </form>
       </Popup>
     </div>
   );

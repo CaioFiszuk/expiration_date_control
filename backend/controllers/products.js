@@ -39,7 +39,7 @@ module.exports.deleteProduct = (req, res) => {
 
 module.exports.updateProduct = (req, res) => {
   Product.findByIdAndUpdate(
-    req.params.id,
+    req.params.productId,
     {
       title: req.body.title,
       quantity: req.body.quantity,
