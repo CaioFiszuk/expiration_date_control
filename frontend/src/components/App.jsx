@@ -4,8 +4,8 @@ import { FaTrashCan, FaPen } from "react-icons/fa6";
 import DateDisplay from './DateDisplay';
 import { calculateDays } from '../utils/calculate';
 import Popup from './Popup';
-import { PDFDownloadLink } from '@react-pdf/renderer';
-import ProductListPdf from './ProductListPdf';
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 function App() {
   const [products, setProducts] = useState([]);
@@ -58,10 +58,10 @@ function App() {
   const handleCreateProduct = async (data) => {
     try {
 
-      await api.createProduct(data.title, data.quantity, data.expirationDate);
+      const newProduct = await api.createProduct(data.title, data.quantity, data.expirationDate);
       setProducts(prevProducts => sortProducts([
         ...prevProducts,
-        { title: data.title, quantity: data.quantity, expirationDate: data.expirationDate }
+        newProduct
       ]));
 
     } catch (error) {
@@ -70,13 +70,14 @@ function App() {
   };
 
   const handleDeleteProduct = async () => {
+
     if (!selectedProduct) return;
 
      try{
         await api.deleteProduct(selectedProduct._id);
-        setProducts(products.filter((v) => v._id !== selectedProduct._id));
-        closeDeleteModal();
+        setProducts((prev) => sortProducts(prev.filter((v) => v._id !== selectedProduct._id)));
         setSelectedProduct(null);
+        closeDeleteModal();
      }catch(error){
       console.error(error);
      }
@@ -121,6 +122,24 @@ function App() {
     };
     await handleCreateProduct(productData);
     closeMainModal();
+  };
+
+  const exportPDF = (products) => {
+  const doc = new jsPDF();
+
+  doc.text("Lista de Produtos", 14, 10);
+
+  autoTable(doc, {
+    startY: 20,
+    head: [['Nome do Produto', 'Quantidade', 'Validade']],
+    body: products.map(p => [
+      p.title,
+      p.quantity,
+      new Date(p.expirationDate).toLocaleDateString('pt-BR')
+    ])
+  });
+
+   doc.save("lista_de_produtos.pdf");
   };
   
 
@@ -180,27 +199,11 @@ function App() {
               );
             })
           ) : (
-            <tr><td colSpan="5">Nada foi encontrado</td></tr>
+            <tr><td colSpan="5">Não há itens no catálogo</td></tr>
           )}
         </tbody>
-        <PDFDownloadLink
-        document={<ProductListPdf products={products} />}
-        fileName="lista_de_produtos.pdf"
-        style={{
-          textDecoration: 'none',
-          padding: '10px',
-          color: '#fff',
-          backgroundColor: '#4a4a4a',
-          border: '1px solid #4a4a4a',
-          borderRadius: '4px',
-          display: 'inline-block',
-          marginTop: '20px',
-        }}
-      >
-        {({ loading }) => (loading ? 'Carregando documento...' : 'Baixar PDF')}
-      </PDFDownloadLink>
       </table>
-
+       <button className='pdf-button' onClick={()=>exportPDF(products)}>Baixar PDF</button>
       <Popup
         isOpen={openModal}
         onClose={closeMainModal}
@@ -256,9 +259,9 @@ function App() {
           />
           <input 
             type="date" 
-            name="expiration-date" 
+            name="expirationDate" 
             className='form__input'
-            value={updateFormData.expirationDate}
+            value={updateFormData.expirationDate.slice(0, 10)}
             onChange={handleUpdateFormChange}
           />
 

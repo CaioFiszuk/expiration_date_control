@@ -26,7 +26,7 @@ O **Controlador De Validade** é um aplicativo que permite ao usuário ter um me
 - **React Js**
 - **Node Js**
 - **React-Modal**
-- **React-Pdf**
+- **JsPDF**
 
 ## Como Utilizar
 
@@ -44,10 +44,25 @@ O **Controlador De Validade** é um aplicativo que permite ao usuário ter um me
 
 3. **Abra o arquivo `src/components/App.Jsx` em seu navegador preferido**.
 
-## Contribuições
+### Bibliotecas de Terceiros
+  Este software utiliza as seguintes bibliotecas open source:
 
-Contribuições são bem-vindas! Sinta-se à vontade para abrir issues ou enviar pull requests. Para maiores detalhes, consulte o arquivo [CONTRIBUTING.md](./CONTRIBUTING.md).
+- React.js — Licença MIT
 
-## Licença
+- Node.js — Licença MIT
 
-Este projeto está licenciado sob a [Licença MIT](./LICENSE).
+- jsPDF — Licença MIT
+
+- React-Modal — Licença MIT
+
+### Geração de Relatórios em PDF
+
+Para exportação de relatórios, utilizei a biblioteca [jsPDF](https://github.com/parallax/jsPDF) com o plugin `autoTable`, garantindo estabilidade e compatibilidade com grandes volumes de dados. A escolha foi feita após testes com outras soluções que apresentaram falhas com dados dinâmicos.
+
+### Licença
+
+Este software é proprietário. O uso está restrito ao comprador/licenciado autorizado.
+
+Não é permitida a redistribuição, cópia ou modificação sem autorização prévia.
+
+Para licenciamento comercial, entre em contato: [caiolopes871@gmail.com]

@@ -36,7 +36,7 @@
 }
 
 .table {
-    margin: 70px auto;
+    margin: 70px auto 20px;
     width: 100%;
     border-collapse: collapse;
 }
