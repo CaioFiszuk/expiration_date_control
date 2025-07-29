@@ -1,56 +1,67 @@
-const Product = require("../models/product");
+const db = require('../db');
 
-module.exports.createProduct = (req, res) => {
-  const { title, quantity, expirationDate } = req.body;
+function createProduct(req, res, next) {
+  try {
+    const { title, quantity, expirationDate } = req.body;
 
-  if (!title || !quantity || !expirationDate) {
-    return res.status(400).send({ message: "Todos os campos precisam ser preenchidos" });
+    const stmt = db.prepare('INSERT INTO produtos (title, quantity, expirationDate) VALUES (?, ?, ?)');
+    const result = stmt.run(title, quantity, expirationDate);
+
+    res.status(201).json({ id: result.lastInsertRowid });
+  } catch (err) {
+    next(err);
   }
-
-  Product.create({ title, quantity, expirationDate })
-    .then((product) => res.send({ data: product }))
-    .catch((err) =>
-      res.status(500).send({ message: "It was not possible for create a product" + err })
-    );
-};
-
-module.exports.getProducts = (req, res) => {
-  Product.find({})
-  .then((product) => res.send({ data: product }))
-  .catch((err) =>
-   res.status(500).send({ message: "Não foi possível retornar as informações" })
- );
 }
 
-module.exports.deleteProduct = (req, res) => {
-  const { productId } = req.params;
+function getProducts(req, res, next) {
+  try {
+    const stmt = db.prepare('SELECT * FROM produtos');
+    const produtos = stmt.all();
 
-  Product.findByIdAndDelete(productId)
-    .then((deletedProduct) => {
-      if (!deletedProduct) {
-        return res.status(404).send({ message: "O produto não foi encontrado" });
-      }
-      res.send({ message: "Produto deletado", data: deletedProduct });
-    })
-    .catch((err) => {
-      res.status(500).send({ message: "Server error" });
-    });
-};
+    res.status(200).json(produtos);
+  } catch (err) {
+    next(err);
+  }
+}
 
-module.exports.updateProduct = (req, res) => {
-  Product.findByIdAndUpdate(
-    req.params.productId,
-    {
-      title: req.body.title,
-      quantity: req.body.quantity,
-      expirationDate: req.body.expirationDate
-    },
-    {
-      new: true,
-      runValidators: true,
-      upsert: false
+function deleteProduct(req, res, next) {
+  try {
+    const { productId } = req.params;
+
+    const stmt = db.prepare('DELETE FROM produtos WHERE id = ?');
+    const result = stmt.run(productId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: 'Produto não encontrado' });
     }
-  )
-  .then(product => res.send({ data: product }))
-  .catch(err => res.status(500).send(err.message));
+
+    res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
 }
+
+function updateProduct(req, res, next) {
+  try {
+    const { productId } = req.params;
+    const { title, expirationDate, quantity } = req.body;
+
+    const stmt = db.prepare('UPDATE produtos SET title = ?, expirationDate = ?, quantity = ? WHERE id = ?');
+    const result = stmt.run(title, expirationDate, quantity, productId);
+
+    if (result.changes === 0) {
+      return res.status(404).json({ message: 'Produto não encontrado' });
+    }
+
+    res.status(200).json({ message: 'Produto atualizado com sucesso' });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = {
+  createProduct,
+  getProducts,
+  deleteProduct,
+  updateProduct,
+};
