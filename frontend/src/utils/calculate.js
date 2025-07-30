@@ -1,4 +1,5 @@
 export const calculateDays = (expirationDate) => {
+    if (!expirationDate) return null;
     const today = new Date();
     const expiration = new Date(expirationDate);
     const diffTime = expiration - today;

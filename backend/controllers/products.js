@@ -53,7 +53,9 @@ function updateProduct(req, res, next) {
       return res.status(404).json({ message: 'Produto não encontrado' });
     }
 
-    res.status(200).json({ message: 'Produto atualizado com sucesso' });
+    const updatedProduct = db.prepare('SELECT * FROM produtos WHERE id = ?').get(productId);
+
+    res.status(200).json(updatedProduct);
   } catch (err) {
     next(err);
   }

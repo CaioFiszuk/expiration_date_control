@@ -20,8 +20,17 @@ function App() {
   });
 
   const sortProducts = (products) => {
-    return products.sort((a, b) => new Date(a.expirationDate) - new Date(b.expirationDate));
-  };
+  return products.sort((a, b) => {
+    const dateA = new Date(a.expirationDate);
+    const dateB = new Date(b.expirationDate);
+
+    if (dateA.getTime() !== dateB.getTime()) {
+      return dateA - dateB;
+    }
+    
+    return a.title.localeCompare(b.title);
+  });
+};
 
   const openMainModal = () => {
     setOpenModal(true);
@@ -59,10 +68,16 @@ function App() {
     try {
 
       const newProduct = await api.createProduct(data.title, data.quantity, data.expirationDate);
+
+      const productWithData = {
+       id: newProduct.id,
+       ...data
+      };
       setProducts(prevProducts => sortProducts([
         ...prevProducts,
-        newProduct
+        productWithData
       ]));
+     
 
     } catch (error) {
       console.error(error);
@@ -74,8 +89,8 @@ function App() {
     if (!selectedProduct) return;
 
      try{
-        await api.deleteProduct(selectedProduct._id);
-        setProducts((prev) => sortProducts(prev.filter((v) => v._id !== selectedProduct._id)));
+        await api.deleteProduct(selectedProduct.id);
+        setProducts((prev) => sortProducts(prev.filter((v) => v.id !== selectedProduct.id)));
         setSelectedProduct(null);
         closeDeleteModal();
      }catch(error){
@@ -96,12 +111,14 @@ function App() {
     if (!selectedProduct) return;
   
     try {
-      const response = await api.updateProduct(selectedProduct._id, updateFormData);
-      const updatedProduct = response.data;
+
+      const response = await api.updateProduct(selectedProduct.id, updateFormData);
+      const updatedProduct = response;
+            console.log(updatedProduct.expirationDate);
       setProducts((prevProducts) =>
         sortProducts(
           prevProducts.map((product) =>
-            product._id === selectedProduct._id ? updatedProduct : product
+            product.id === selectedProduct.id ? updatedProduct : product
           )
         )
       );
@@ -146,7 +163,7 @@ function App() {
   useEffect(() => {
     api.getProducts()
       .then((data) => {
-        setProducts(sortProducts(data.data));
+        setProducts(sortProducts(data));
       })
       .catch((error) => console.error("Erro ao buscar produtos:", error));
   }, []);
@@ -178,6 +195,7 @@ function App() {
           {products.length > 0 ? (
             products.map((product) => {
               const remainingDays = calculateDays(product.expirationDate);
+              
               let color = '';
             
               if (remainingDays <= 7) {
@@ -187,7 +205,7 @@ function App() {
               }
             
               return (
-                <tr key={product._id}>
+                <tr key={product.id}>
                   <td className='table__cell'>{product.title}</td>
                   <td className='table__cell'>{product.quantity}</td>
                   <td className={`table__cell ${color}`}>

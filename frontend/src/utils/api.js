@@ -23,7 +23,7 @@ class Api {
 
        return axios.post(`${this._baseURL}/products`, {title, quantity, expirationDate}, { headers: this._headers })
        .then((res) => {
-        return res.data.data;
+        return res.data;
       })
           .catch((error) => {
 
@@ -34,9 +34,9 @@ class Api {
     });
     }
      
-    deleteProduct(id) {
+    async deleteProduct(id) {
       try {
-        const res = axios.delete(`${this._baseURL}/products/${id}`);
+        const res = await axios.delete(`${this._baseURL}/products/${id}`);
         return res.data;
       } catch (error) {
         throw new Error(`Error: ${error.response ? error.response.status : error.message}`);
