@@ -9,6 +9,7 @@ import autoTable from "jspdf-autotable";
 
 function App() {
   const [products, setProducts] = useState([]);
+  const [expiredProducts, setExpiredProducts] = useState([]);
   const [openModal, setOpenModal] = useState(false);
   const [deleteModal, setDeleteModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
@@ -141,10 +142,15 @@ function App() {
     closeMainModal();
   };
 
-  const exportPDF = (products) => {
+  const exportPDF = (products, filename = "lista_de_produtos.pdf", title = "Lista de Produtos") => {
+    if (!products || products.length === 0) {
+      alert("Nenhum produto para exportar");
+      return;
+  }
+
   const doc = new jsPDF();
 
-  doc.text("Lista de Produtos", 14, 10);
+  doc.text(title, 14, 10);
 
   autoTable(doc, {
     startY: 20,
@@ -156,14 +162,18 @@ function App() {
     ])
   });
 
-   doc.save("lista_de_produtos.pdf");
+   doc.save(filename);
   };
-  
+
 
   useEffect(() => {
     api.getProducts()
       .then((data) => {
-        setProducts(sortProducts(data));
+        const sorted = sortProducts(data);
+        setProducts(sorted);
+        const today = new Date().toISOString().slice(0, 10);
+        const expired = sorted.filter((p) => p.expirationDate < today);
+        setExpiredProducts(expired);
       })
       .catch((error) => console.error("Erro ao buscar produtos:", error));
   }, []);
@@ -221,7 +231,8 @@ function App() {
           )}
         </tbody>
       </table>
-       <button className='pdf-button' onClick={()=>exportPDF(products)}>Baixar PDF</button>
+       <button className='pdf-button' onClick={()=>exportPDF(products, "todos_os_produtos.pdf", "Todos os Produtos")}>Baixar PDF</button>
+       <button className='pdf-button' onClick={() => exportPDF(expiredProducts, "produtos_vencidos.pdf", "Produtos Vencidos")}>Baixar PDF de Vencidos</button>
       <Popup
         isOpen={openModal}
         onClose={closeMainModal}
