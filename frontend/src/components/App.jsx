@@ -179,7 +179,7 @@ function App() {
   }, []);
 
   return (
-    <div className='page'>
+    <section className='page'>
       <nav className='navigation'>
         <button
           type='button'
@@ -302,7 +302,7 @@ function App() {
           </button>
         </form>
       </Popup>
-    </div>
+    </section>
   );
 }
 
