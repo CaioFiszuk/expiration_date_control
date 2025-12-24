@@ -4,7 +4,7 @@ function createProduct(req, res, next) {
   try {
     const { title, quantity, expirationDate } = req.body;
 
-    const stmt = db.prepare('INSERT INTO produtos (title, quantity, expirationDate) VALUES (?, ?, ?)');
+    const stmt = db.prepare('INSERT INTO products (title, quantity, expirationDate) VALUES (?, ?, ?)');
     const result = stmt.run(title, quantity, expirationDate);
 
     res.status(201).json({ id: result.lastInsertRowid });
@@ -15,7 +15,7 @@ function createProduct(req, res, next) {
 
 function getProducts(req, res, next) {
   try {
-    const stmt = db.prepare('SELECT * FROM produtos');
+    const stmt = db.prepare('SELECT * FROM products');
     const produtos = stmt.all();
 
     res.status(200).json(produtos);
@@ -28,7 +28,7 @@ function deleteProduct(req, res, next) {
   try {
     const { productId } = req.params;
 
-    const stmt = db.prepare('DELETE FROM produtos WHERE id = ?');
+    const stmt = db.prepare('DELETE FROM products WHERE id = ?');
     const result = stmt.run(productId);
 
     if (result.changes === 0) {
@@ -46,14 +46,14 @@ function updateProduct(req, res, next) {
     const { productId } = req.params;
     const { title, expirationDate, quantity } = req.body;
 
-    const stmt = db.prepare('UPDATE produtos SET title = ?, expirationDate = ?, quantity = ? WHERE id = ?');
+    const stmt = db.prepare('UPDATE products SET title = ?, expirationDate = ?, quantity = ? WHERE id = ?');
     const result = stmt.run(title, expirationDate, quantity, productId);
 
     if (result.changes === 0) {
       return res.status(404).json({ message: 'Produto não encontrado' });
     }
 
-    const updatedProduct = db.prepare('SELECT * FROM produtos WHERE id = ?').get(productId);
+    const updatedProduct = db.prepare('SELECT * FROM products WHERE id = ?').get(productId);
 
     res.status(200).json(updatedProduct);
   } catch (err) {
@@ -67,3 +67,4 @@ module.exports = {
   deleteProduct,
   updateProduct,
 };
+  

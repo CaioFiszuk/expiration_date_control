@@ -1,7 +1,6 @@
 const Database = require('better-sqlite3');
-const path = require('path');
 
-const db = new Database(path.resolve(__dirname, 'banco.db'), { verbose: console.log });
+const db = new Database(':memory:');
 
 db.prepare(`
   CREATE TABLE IF NOT EXISTS products (

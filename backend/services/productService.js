@@ -1,4 +1,4 @@
-const db = require('../database/db');
+const db = require('../database/dbTest');
 
 function createProduct({ title, quantity, expirationDate }) {
   const stmt = db.prepare(`
