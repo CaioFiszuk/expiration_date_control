@@ -2,6 +2,7 @@ import { api } from '../utils/api';
 import { useEffect, useState } from 'react';
 import { FaTrashCan, FaPen } from "react-icons/fa6";
 import DateDisplay from './DateDisplay';
+import Form from './Form';
 import { calculateDays } from '../utils/calculate';
 import Popup from './Popup';
 import jsPDF from "jspdf";
@@ -14,11 +15,6 @@ function App() {
   const [deleteModal, setDeleteModal] = useState(false);
   const [updateModal, setUpdateModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
-  const [updateFormData, setUpdateFormData] = useState({
-    title: '',
-    quantity: '',
-    expirationDate: ''
-  });
 
   const sortProducts = (products) => {
   return products.sort((a, b) => {
@@ -52,11 +48,6 @@ function App() {
 
   const openUpdateModal = (product) => {
      setSelectedProduct(product);
-     setUpdateFormData({
-      title: product.title,
-      quantity: product.quantity,
-      expirationDate: product.expirationDate
-    });
      setUpdateModal(true);
   }
 
@@ -68,17 +59,19 @@ function App() {
   const handleCreateProduct = async (data) => {
     try {
 
-      const newProduct = await api.createProduct(data.title, data.quantity, data.expirationDate);
+      const newProduct = await api.createProduct(data);
 
       const productWithData = {
        id: newProduct.id,
        ...data
       };
+
       setProducts(prevProducts => sortProducts([
         ...prevProducts,
         productWithData
       ]));
-     
+
+      closeMainModal();
 
     } catch (error) {
       console.error(error);
@@ -99,48 +92,28 @@ function App() {
      }
   }
 
-  const handleUpdateFormChange = (e) => {
-    const { name, value } = e.target;
-    setUpdateFormData((prevData) => ({
-      ...prevData,
-      [name]: value
-    }));
-  };
+  const handleUpdateProduct = async (newValue) => {
 
-  const handleUpdateProduct = async (e) => {
-    e.preventDefault();
     if (!selectedProduct) return;
   
     try {
 
-      const response = await api.updateProduct(selectedProduct.id, updateFormData);
-      const updatedProduct = response;
-            console.log(updatedProduct.expirationDate);
-      setProducts((prevProducts) =>
+      const response = await api.updateProduct(selectedProduct.id, newValue);
+       
+      setProducts((prev) =>
         sortProducts(
-          prevProducts.map((product) =>
-            product.id === selectedProduct.id ? updatedProduct : product
+          prev.map((product) =>
+            product.id === selectedProduct.id ? response : product
           )
         )
       );
+
       closeUpdateModal();
     } catch (error) {
       console.error("Erro ao atualizar produto:", error);
     }
   };
   
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const data = new FormData(e.target);
-    const productData = {
-      title: data.get('title'),
-      quantity: data.get('quantity'),
-      expirationDate: data.get('expiration-date'),
-    };
-    await handleCreateProduct(productData);
-    closeMainModal();
-  };
 
   const exportPDF = (products, filename = "lista_de_produtos.pdf", title = "Lista de Produtos") => {
     if (!products || products.length === 0) {
@@ -237,19 +210,7 @@ function App() {
         isOpen={openModal}
         onClose={closeMainModal}
       >
-        <form className='form' onSubmit={handleSubmit}>
-          <legend className='form__title'>Registrar Produto</legend>
-          <input type="text" name="title" placeholder='Título' className='form__input'/>
-          <input type="number" name="quantity" placeholder='Quantidade' className='form__input'/>
-          <input type="date" name="expiration-date" className='form__input'/>
-
-          <button 
-            type='submit' 
-            className='form__button'
-          >
-            Registrar
-          </button>
-        </form>
+        <Form formTitle={'Registrar produto'} handleSubmitForm={handleCreateProduct}/>
       </Popup>
 
       <Popup
@@ -267,40 +228,7 @@ function App() {
         isOpen={updateModal}
         onClose={closeUpdateModal}
       >
-        <form className='form' onSubmit={handleUpdateProduct}>
-          <legend className='form__title'>Atualizar Produto</legend>
-          <input 
-          
-            type="text" 
-            name="title" 
-            placeholder='Título' 
-            className='form__input'
-            value={updateFormData.title}
-            onChange={handleUpdateFormChange}
-          />
-          <input 
-            type="number" 
-            name="quantity" 
-            placeholder='Quantidade' 
-            className='form__input'
-            value={updateFormData.quantity}
-            onChange={handleUpdateFormChange}
-          />
-          <input 
-            type="date" 
-            name="expirationDate" 
-            className='form__input'
-            value={updateFormData.expirationDate.slice(0, 10)}
-            onChange={handleUpdateFormChange}
-          />
-
-          <button 
-            type='submit' 
-            className='form__button'
-          >
-            Atualizar
-          </button>
-        </form>
+        <Form formTitle={'Editar Produto'} handleSubmitForm={handleUpdateProduct} initialData={selectedProduct}/>
       </Popup>
     </section>
   );

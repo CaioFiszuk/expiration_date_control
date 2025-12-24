@@ -16,12 +16,14 @@ class Api {
           });
     }
 
-    createProduct(title, quantity, expirationDate) {
+    createProduct(data) {
+       const { title, quantity, expirationDate } = data;
+
       if (!title || !quantity || !expirationDate) {
         return Promise.reject("Todos os campos são obrigatórios.");
       }
 
-       return axios.post(`${this._baseURL}/products`, {title, quantity, expirationDate}, { headers: this._headers })
+       return axios.post(`${this._baseURL}/products`, data, { headers: this._headers })
        .then((res) => {
         return res.data;
       })
