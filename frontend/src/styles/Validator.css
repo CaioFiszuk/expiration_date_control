@@ -1,0 +1,6 @@
+.form__error-message {
+    font-size: 20px;
+    color: rgb(255, 0, 0);
+    align-self: center;
+    margin-bottom: 10px;
+}

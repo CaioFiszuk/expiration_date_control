@@ -1,9 +1,12 @@
 import { useState, useEffect } from "react";
+import Validator from './Validator';
 
 function Form({formTitle, handleSubmitForm, initialData}) {
   const [title, setTitle] = useState("");
   const [quantity, setQuantity] = useState(0);
   const [expirationDate, setExpirationDate] = useState(null);
+  const [isValid, setIsValid] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -30,8 +33,14 @@ function Form({formTitle, handleSubmitForm, initialData}) {
              value={title}
              onChange={(e)=>{
               setTitle(e.target.value);
+              setErrorMessage(e.target.validationMessage);
+              setIsValid(e.target.checkValidity());
              }}
+             required
+             minLength={5}
+             maxLength={50}
           />
+            {!isValid && <Validator message={errorMessage} />}
 
           <input 
              type="number" 
@@ -41,8 +50,14 @@ function Form({formTitle, handleSubmitForm, initialData}) {
              value={quantity}
              onChange={(e)=>{
               setQuantity(e.target.value);
+              setErrorMessage(e.target.validationMessage);
+              setIsValid(e.target.checkValidity());
              }}
+             required
+             max={10000}
+             min={0}
           />
+            {!isValid && <Validator message={errorMessage} />}
 
           <input 
             type="date" 
@@ -50,9 +65,13 @@ function Form({formTitle, handleSubmitForm, initialData}) {
             className='form__input'
             value={expirationDate}
             onChange={(e)=>{
-            setExpirationDate(e.target.value);
+              setExpirationDate(e.target.value);
+              setErrorMessage(e.target.validationMessage);
+              setIsValid(e.target.checkValidity());
             }}
+            required
           />
+            {!isValid && <Validator message={errorMessage} />}
 
           <button 
             type='submit' 
